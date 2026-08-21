@@ -9,7 +9,8 @@
     <style>
         body { font-family: 'Inter', sans-serif; }
         .tab-active { border-bottom: 2px solid #3b82f6; color: #3b82f6; font-weight: 600; }
-        .tab-inactive { color: #6b7280; font-weight: 400; }
+        .tab-inactive { color: #6b7280; font-weight: 400; hover:text-gray-900; }
+        /* ซ่อนส่วนที่ไม่ได้ใช้งาน */
         .hidden-section { display: none; }
     </style>
 </head>
@@ -54,6 +55,7 @@
             </form>
         </div>
 
+        <!-- Supplier Section -->
         <div id="section-supplier" class="p-6 hidden-section">
             <div id="supplier-auth">
                 <h2 class="text-lg font-semibold text-gray-800 mb-2">ตรวจสอบสิทธิ์</h2>
@@ -83,7 +85,7 @@
                             </div>
                             <div>
                                 <h3 class="font-medium text-gray-900">ติดตั้ง Application</h3>
-                                <p class="text-xs text-gray-500">ผ่าน Google Play Store</p>
+                                <p class="text-xs text-gray-500">สำหรับระบบปฏิบัติการล่าสุด</p>
                             </div>
                         </div>
                         <span class="text-blue-600 font-medium text-sm">ดาวน์โหลด &rarr;</span>
@@ -93,6 +95,7 @@
         </div>
     </div>
 
+    <!-- Custom Message Box (Toast) -->
     <div id="toast" class="fixed top-5 right-5 transform translate-x-full opacity-0 transition-all duration-300 z-50">
         <div id="toast-bg" class="bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg flex items-center gap-3">
             <span id="toast-icon">✓</span>
@@ -101,7 +104,7 @@
     </div>
 
     <script>
-        // ระบบสลับแท็บเมนู
+        // ระบบจัดการ Tab
         function switchTab(tab) {
             const userSec = document.getElementById('section-user');
             const supSec = document.getElementById('section-supplier');
@@ -121,7 +124,7 @@
             }
         }
 
-        // ระบบ Toast แจ้งเตือนสวยๆ แทน Alert
+        // ระบบแจ้งเตือน (แทน Alert)
         function showToast(message, isSuccess = true) {
             const toast = document.getElementById('toast');
             const toastBg = document.getElementById('toast-bg');
@@ -138,15 +141,18 @@
                 toastIcon.textContent = '✕';
             }
 
+            // แสดง Toast
             toast.classList.remove('translate-x-full', 'opacity-0');
+            
+            // ซ่อนอัตโนมัติ
             setTimeout(() => {
                 toast.classList.add('translate-x-full', 'opacity-0');
             }, 3000);
         }
 
-        // ฟังก์ชันส่งข้อมูลผู้ใช้งาน
+        // ฟังก์ชันส่งข้อมูลของ User
         function handleUserSubmit(event) {
-            event.preventDefault();
+            event.preventDefault(); // ป้องกันการรีเฟรชหน้า
             
             const btn = document.getElementById('btn-submit');
             btn.textContent = "กำลังประมวลผล...";
@@ -158,6 +164,7 @@
                 email: document.getElementById('email').value
             };
 
+            // ตรวจสอบว่ากำลังรันใน Apps Script หรือบนระบบ Preview ปกติ
             if (typeof google !== 'undefined' && google.script && google.script.run) {
                 google.script.run
                     .withSuccessHandler(function(response) {
@@ -175,6 +182,7 @@
                     })
                     .submitUserData(data);
             } else {
+                // จำลองการทำงานเมื่อทดสอบในหน้า Preview
                 setTimeout(() => {
                     resetButton();
                     showToast("จำลองการบันทึกข้อมูลเรียบร้อย (Preview Mode)", true);
@@ -189,7 +197,7 @@
             }
         }
 
-        // ฟังก์ชันตรวจสอบสิทธิ์ Supplier
+        // ฟังก์ชันตรวจสอบซัพพลายเออร์
         function verifySupplier() {
             const companyCode = document.getElementById('supplier-pass').value;
             const btnVerify = document.getElementById('btn-verify');
@@ -223,6 +231,7 @@
                     })
                     .verifySupplierAuth(companyCode);
             } else {
+                // ระบบจำลองเมื่อเปิดบนโหมด Preview ของ Editor
                 setTimeout(() => {
                     btnVerify.textContent = "ตรวจสอบ";
                     btnVerify.disabled = false;
@@ -231,7 +240,7 @@
                         document.getElementById('supplier-content').classList.remove('hidden-section');
                         showToast("ยืนยันสิทธิ์สำเร็จ (Preview Mode)", true);
                     } else {
-                        showToast("ไม่พบ Company Code ในระบบ (รหัสจำลองคือ ABC)", false);
+                        showToast("ไม่พบ Company Code (รหัสจำลองคือ ABC)", false);
                     }
                 }, 800);
             }
